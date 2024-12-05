@@ -4,8 +4,7 @@ from scipy.optimize import fsolve
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-plt.rcParams['font.sans-serif'] = ['SimHei']  # Windows
+plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示为方块的问题
 
 # 加载上传的 Excel 文件
@@ -62,34 +61,40 @@ if len(ytm_results_mtn001) == len(data) and len(ytm_results_gz03) == len(data):
 else:
     print(f"Error: ytm_results 的长度 ({len(ytm_results_mtn001)}) 与数据的长度 ({len(data)}) 不匹配")
 
-# 显示包含 YTM 结果的更新后的数据框
+# 显示包含 YTM 结果
 print(data[['日期', '20永煤MTN001', 'YTM_MTN001', '03国债03', 'YTM_GZ03']].head())  # 显示前 5 行作为示例
 
-# 可视化结果
-sns.set_theme(style="whitegrid")
-plt.figure(figsize=(14, 8))
-sns.lineplot(x=data['日期'], y=data['YTM_MTN001'], label='20永煤MTN001 的精确 YTM', color='blue')
-sns.lineplot(x=data['日期'], y=data['YTM_GZ03'], label='03国债03 的精确 YTM', color='green')
-plt.title("不同时间的精确 YTM")
-plt.xlabel("日期")
-plt.ylabel("精确 YTM")
-plt.xticks(rotation=45)
-plt.legend()
-plt.show()
 
 # 计算 '20永煤MTN001' 和 '03国债03' 之间的债券利差
 data['Bond_Yield_Spread'] = data['YTM_MTN001'] - data['YTM_GZ03']
 
-# 存储相关列到数据框
-bond_yield_data = data[['日期', 'YTM_MTN001', 'YTM_GZ03', 'Bond_Yield_Spread']]
+# 将结果存放到数据框中
+bond_yield_data = pd.DataFrame({
+    '日期': data['日期'],
+    'YTM_MTN001': data['YTM_MTN001'],
+    'YTM_GZ03': data['YTM_GZ03'],
+    'Bond_Yield_Spread': data['Bond_Yield_Spread']
+})
 
 # 显示前几行数据检查
 print(bond_yield_data.head())
-
-# 可视化债券利差
+# 可视化到期收益率和债券利差
 sns.set_theme(style="whitegrid")
 plt.figure(figsize=(14, 8))
-sns.lineplot(x=data['日期'], y=data['Bond_Yield_Spread'], label='债券利差 (20永煤MTN001 - 03国债03)', color='purple')
+# 绘制 "20永煤MTN001" 和 "03国债03" 的到期收益率
+sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['YTM_MTN001'], label='20永煤MTN001的YTM', color='blue')
+sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['YTM_GZ03'], label='03国债03的YTM', color='green')
+
+plt.title("20永煤MTN001 和 03国债03 的到期收益率随时间的变化")
+plt.xlabel("日期")
+plt.ylabel("到期收益率 (YTM)")
+plt.xticks(rotation=45)
+plt.legend()
+plt.show()
+
+# 可视化债券利差
+plt.figure(figsize=(14, 8))
+sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['Bond_Yield_Spread'], label='债券利差 (20永煤MTN001 - 03国债03)', color='purple')
 plt.title("20永煤MTN001 和 03国债03 之间的债券利差")
 plt.xlabel("日期")
 plt.ylabel("债券利差")
@@ -100,6 +105,7 @@ plt.show()
 # 常量
 recovery_rate = 0.5  # 违约回收率 R = 50%
 years_to_maturity = 3  # 假设债券的到期期限为 3 年
+
 
 # 使用给定公式 (式 7-12) 计算违约概率 lambda
 def calculate_default_probability(ytm_risky, ytm_risk_free, recovery_rate, years_to_maturity):
