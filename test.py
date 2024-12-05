@@ -3,10 +3,9 @@ import numpy as np
 from scipy.optimize import fsolve
 from datetime import datetime
 import matplotlib.pyplot as plt
-import seaborn as sns
+
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示为方块的问题
-
 # 加载上传的 Excel 文件
 file_path = "20永煤MTN01和03国债03的债券价格.xlsx"
 excel_data = pd.ExcelFile(file_path)
@@ -78,12 +77,13 @@ bond_yield_data = pd.DataFrame({
 
 # 显示前几行数据检查
 print(bond_yield_data.head())
-# 可视化到期收益率和债券利差
-sns.set_theme(style="whitegrid")
+
+# 可视化到期收益率和债券利差 (使用 Matplotlib)
 plt.figure(figsize=(14, 8))
+
 # 绘制 "20永煤MTN001" 和 "03国债03" 的到期收益率
-sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['YTM_MTN001'], label='20永煤MTN001的YTM', color='blue')
-sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['YTM_GZ03'], label='03国债03的YTM', color='green')
+plt.plot(bond_yield_data['日期'], bond_yield_data['YTM_MTN001'], label='20永煤MTN001的YTM', color='blue')
+plt.plot(bond_yield_data['日期'], bond_yield_data['YTM_GZ03'], label='03国债03的YTM', color='green')
 
 plt.title("20永煤MTN001 和 03国债03 的到期收益率随时间的变化")
 plt.xlabel("日期")
@@ -94,7 +94,7 @@ plt.show()
 
 # 可视化债券利差
 plt.figure(figsize=(14, 8))
-sns.lineplot(x=bond_yield_data['日期'], y=bond_yield_data['Bond_Yield_Spread'], label='债券利差 (20永煤MTN001 - 03国债03)', color='purple')
+plt.plot(bond_yield_data['日期'], bond_yield_data['Bond_Yield_Spread'], label='债券利差 (20永煤MTN001 - 03国债03)', color='purple')
 plt.title("20永煤MTN001 和 03国债03 之间的债券利差")
 plt.xlabel("日期")
 plt.ylabel("债券利差")
@@ -137,10 +137,9 @@ data['Default_Probability'] = default_probabilities
 # 显示包含违约概率的更新后的数据框前几行
 print(data[['日期', 'YTM_MTN001', 'YTM_GZ03', 'Default_Probability']].head())
 
-# 可视化违约概率随时间的变化
-sns.set_theme(style="whitegrid")
+# 可视化违约概率随时间的变化 (使用 Matplotlib)
 plt.figure(figsize=(14, 8))
-sns.lineplot(x=data['日期'], y=data['Default_Probability'], label='20永煤MTN001 的违约概率', color='red')
+plt.plot(data['日期'], data['Default_Probability'], label='20永煤MTN001 的违约概率', color='red')
 plt.title("20永煤MTN001 随时间变化的违约概率")
 plt.xlabel("日期")
 plt.ylabel("违约概率 (λ)")
